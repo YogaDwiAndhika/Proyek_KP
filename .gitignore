@@ -1,0 +1,10 @@
+# Ignore node modules globally
+node_modules/
+
+# Ignore backend modules and environment files
+backend/vendor/
+backend/.env
+
+# Mac / Windows system files
+.DS_Store
+Thumbs.db
