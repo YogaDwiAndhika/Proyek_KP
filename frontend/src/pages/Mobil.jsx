@@ -14,10 +14,8 @@ export default function Mobil() {
 
   const table = useTable(data, 10);
 
-  useEffect(() => {
-    fetchData();
-    fetchPelanggans();
-  }, []);
+
+
 
   const fetchData = async () => {
     setLoading(true);
@@ -38,6 +36,11 @@ export default function Mobil() {
       console.error('Error fetching pelanggans:', error);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+    fetchPelanggans();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

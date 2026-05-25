@@ -13,9 +13,7 @@ export default function Layanan() {
 
   const table = useTable(data, 10);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+
 
   const fetchData = async () => {
     setLoading(true);
@@ -27,6 +25,10 @@ export default function Layanan() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

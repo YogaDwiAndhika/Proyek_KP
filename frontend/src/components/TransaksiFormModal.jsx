@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import CreatableSelect from 'react-select/creatable';
+import api from '../utils/api';
 
 export default function TransaksiFormModal({
   isEditing,
@@ -6,11 +9,16 @@ export default function TransaksiFormModal({
   setFormData,
   mobils,
   sparepartsList,
+  setSparepartsList,
   layanansList,
+  setLayanansList,
   handleSubmit,
   closeModal,
   handleInputChange
 }) {
+  const [newSparepart, setNewSparepart] = useState({ isOpen: false, inputValue: '', index: null, merk: '', harga_satuan: '' });
+  const [newLayanan, setNewLayanan] = useState({ isOpen: false, inputValue: '', index: null, biaya: '', keterangan: '' });
+
   const addSparepart = () => {
     setFormData(prev => ({
       ...prev,
@@ -55,6 +63,70 @@ export default function TransaksiFormModal({
       newLay[index].id_layanan = value;
       return { ...prev, layanans: newLay };
     });
+  };
+
+  const handleCreateSparepart = (inputValue, index) => {
+    setNewSparepart({ isOpen: true, inputValue, index, merk: '', harga_satuan: '' });
+  };
+
+  const submitNewSparepart = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/sparepart', {
+        nama_sparepart: newSparepart.inputValue,
+        merk: newSparepart.merk,
+        harga_satuan: parseFloat(newSparepart.harga_satuan)
+      });
+      const createdSp = res.data;
+      setSparepartsList(prev => [...prev, createdSp]);
+      handleSparepartChange(newSparepart.index, 'id_sparepart', createdSp.id_sparepart.toString());
+      setNewSparepart({ isOpen: false, inputValue: '', index: null, merk: '', harga_satuan: '' });
+    } catch (error) {
+      console.error(error);
+      alert("Gagal menambahkan sparepart baru.");
+    }
+  };
+
+  const handleCreateLayanan = (inputValue, index) => {
+    setNewLayanan({ isOpen: true, inputValue, index, biaya: '', keterangan: '' });
+  };
+
+  const submitNewLayanan = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/layanan', {
+        jenis_layanan: newLayanan.inputValue,
+        biaya: parseFloat(newLayanan.biaya),
+        keterangan: newLayanan.keterangan || ''
+      });
+      const createdLay = res.data;
+      setLayanansList(prev => [...prev, createdLay]);
+      handleLayananChange(newLayanan.index, createdLay.id_layanan.toString());
+      setNewLayanan({ isOpen: false, inputValue: '', index: null, biaya: '', keterangan: '' });
+    } catch (error) {
+      console.error(error);
+      alert("Gagal menambahkan layanan baru.");
+    }
+  };
+
+  const getSparepartOption = (id) => {
+    if (!id) return null;
+    const item = sparepartsList.find(s => s.id_sparepart.toString() === id.toString());
+    if (!item) return null;
+    return {
+      value: item.id_sparepart.toString(),
+      label: `${item.nama_sparepart} - Rp ${new Intl.NumberFormat('id-ID').format(item.harga_satuan)}`
+    };
+  };
+
+  const getLayananOption = (id) => {
+    if (!id) return null;
+    const item = layanansList.find(l => l.id_layanan.toString() === id.toString());
+    if (!item) return null;
+    return {
+      value: item.id_layanan.toString(),
+      label: `${item.jenis_layanan} - Rp ${new Intl.NumberFormat('id-ID').format(item.biaya)}`
+    };
   };
 
   const calculateTotal = () => {
@@ -139,20 +211,22 @@ export default function TransaksiFormModal({
               
               {formData.spareparts.map((sp, index) => (
                 <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                  <select
-                    className="form-input"
-                    value={sp.id_sparepart}
-                    onChange={(e) => handleSparepartChange(index, 'id_sparepart', e.target.value)}
-                    required
-                    style={{ flex: 2 }}
-                  >
-                    <option value="">-- Pilih Sparepart --</option>
-                    {sparepartsList.map(item => (
-                      <option key={item.id_sparepart} value={item.id_sparepart}>
-                        {item.nama_sparepart} - Rp {new Intl.NumberFormat('id-ID').format(item.harga_satuan)}
-                      </option>
-                    ))}
-                  </select>
+                  <CreatableSelect
+                    isClearable
+                    options={sparepartsList.map(item => ({
+                      value: item.id_sparepart.toString(),
+                      label: `${item.nama_sparepart} - Rp ${new Intl.NumberFormat('id-ID').format(item.harga_satuan)}`
+                    }))}
+                    value={getSparepartOption(sp.id_sparepart)}
+                    onChange={(selectedOption) => handleSparepartChange(index, 'id_sparepart', selectedOption ? selectedOption.value : '')}
+                    onCreateOption={(inputValue) => handleCreateSparepart(inputValue, index)}
+                    placeholder="-- Pilih atau Ketik Sparepart --"
+                    formatCreateLabel={(inputValue) => `Buat sparepart "${inputValue}"`}
+                    styles={{
+                      container: (base) => ({ ...base, flex: 2 }),
+                      control: (base) => ({ ...base, minHeight: '42px', borderRadius: '6px', borderColor: '#e5e7eb' })
+                    }}
+                  />
                   <input
                     type="number"
                     className="form-input"
@@ -182,20 +256,22 @@ export default function TransaksiFormModal({
               
               {formData.layanans.map((lay, index) => (
                 <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                  <select
-                    className="form-input"
-                    value={lay.id_layanan}
-                    onChange={(e) => handleLayananChange(index, e.target.value)}
-                    required
-                    style={{ flex: 1 }}
-                  >
-                    <option value="">-- Pilih Layanan --</option>
-                    {layanansList.map(item => (
-                      <option key={item.id_layanan} value={item.id_layanan}>
-                        {item.jenis_layanan} - Rp {new Intl.NumberFormat('id-ID').format(item.biaya)}
-                      </option>
-                    ))}
-                  </select>
+                  <CreatableSelect
+                    isClearable
+                    options={layanansList.map(item => ({
+                      value: item.id_layanan.toString(),
+                      label: `${item.jenis_layanan} - Rp ${new Intl.NumberFormat('id-ID').format(item.biaya)}`
+                    }))}
+                    value={getLayananOption(lay.id_layanan)}
+                    onChange={(selectedOption) => handleLayananChange(index, selectedOption ? selectedOption.value : '')}
+                    onCreateOption={(inputValue) => handleCreateLayanan(inputValue, index)}
+                    placeholder="-- Pilih atau Ketik Layanan --"
+                    formatCreateLabel={(inputValue) => `Buat layanan "${inputValue}"`}
+                    styles={{
+                      container: (base) => ({ ...base, flex: 1 }),
+                      control: (base) => ({ ...base, minHeight: '42px', borderRadius: '6px', borderColor: '#e5e7eb' })
+                    }}
+                  />
                   <button type="button" className="btn-icon delete" onClick={() => removeLayanan(index)}>
                     <X size={18} />
                   </button>
@@ -233,6 +309,78 @@ export default function TransaksiFormModal({
           </div>
         </form>
       </div>
+
+      {/* Sparepart Custom Modal */}
+      {newSparepart.isOpen && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h2 className="modal-title">Buat Sparepart Baru</h2>
+            </div>
+            <form onSubmit={submitNewSparepart}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Nama Sparepart</label>
+                  <input type="text" className="form-input" value={newSparepart.inputValue} readOnly style={{ backgroundColor: '#f3f4f6' }} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Merk</label>
+                  <input type="text" className="form-input" required 
+                         value={newSparepart.merk} 
+                         onChange={(e) => setNewSparepart({...newSparepart, merk: e.target.value})} 
+                         autoFocus />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Harga Satuan (Rp)</label>
+                  <input type="number" className="form-input" required min="0"
+                         value={newSparepart.harga_satuan} 
+                         onChange={(e) => setNewSparepart({...newSparepart, harga_satuan: e.target.value})} />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setNewSparepart({ ...newSparepart, isOpen: false })}>Batal</button>
+                <button type="submit" className="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Layanan Custom Modal */}
+      {newLayanan.isOpen && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h2 className="modal-title">Buat Layanan Baru</h2>
+            </div>
+            <form onSubmit={submitNewLayanan}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Jenis Layanan</label>
+                  <input type="text" className="form-input" value={newLayanan.inputValue} readOnly style={{ backgroundColor: '#f3f4f6' }} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Biaya (Rp)</label>
+                  <input type="number" className="form-input" required min="0"
+                         value={newLayanan.biaya} 
+                         onChange={(e) => setNewLayanan({...newLayanan, biaya: e.target.value})} 
+                         autoFocus />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Keterangan (opsional)</label>
+                  <textarea className="form-input" rows="2"
+                         value={newLayanan.keterangan} 
+                         onChange={(e) => setNewLayanan({...newLayanan, keterangan: e.target.value})}></textarea>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setNewLayanan({ ...newLayanan, isOpen: false })}>Batal</button>
+                <button type="submit" className="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

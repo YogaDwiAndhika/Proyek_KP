@@ -31,10 +31,19 @@ export default function Transaksi() {
 
   const table = useTable(data, 10);
 
-  useEffect(() => {
-    fetchData();
-    fetchRelatedData();
-  }, []);
+
+
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/transaksi');
+      setData(res.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    setLoading(false);
+  };
 
   const fetchRelatedData = async () => {
     try {
@@ -49,16 +58,10 @@ export default function Transaksi() {
     }
   };
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get('/transaksi');
-      setData(res.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-    setLoading(false);
-  };
+  useEffect(() => {
+    fetchData();
+    fetchRelatedData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -203,7 +206,9 @@ export default function Transaksi() {
           setFormData={setFormData}
           mobils={mobils}
           sparepartsList={sparepartsList}
+          setSparepartsList={setSparepartsList}
           layanansList={layanansList}
+          setLayanansList={setLayanansList}
           handleSubmit={handleSubmit}
           closeModal={() => setShowModal(false)}
           handleInputChange={handleInputChange}
