@@ -7,7 +7,10 @@ export default function TransaksiDetailModal({ selectedDetail, closeModal }) {
         
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '3px double #000', paddingBottom: '10px', marginBottom: '10px' }}>
-          <h2 style={{ color: 'red', margin: 0, fontSize: '24px' }}>Auto 60</h2>
+          <h2 style={{ margin: 0, fontSize: '24px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ color: 'red' }}>Auto</span>
+            <span style={{ color: 'black' }}>60</span>
+          </h2>
           <h3 style={{ margin: 0, fontSize: '18px' }}>Bukti Pembayaran</h3>
         </div>
 

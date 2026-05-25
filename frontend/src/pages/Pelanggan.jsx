@@ -145,6 +145,7 @@ export default function Pelanggan() {
                     type="text"
                     className="form-input"
                     name="nama_pelanggan"
+                    placeholder="Masukkan nama lengkap pelanggan"
                     value={formData.nama_pelanggan}
                     onChange={handleInputChange}
                     required
@@ -156,6 +157,7 @@ export default function Pelanggan() {
                     type="text"
                     className="form-input"
                     name="nomor_telp"
+                    placeholder="Masukkan nomor telepon (cth: 08123456789)"
                     value={formData.nomor_telp}
                     onChange={handleInputChange}
                     required
@@ -166,6 +168,7 @@ export default function Pelanggan() {
                   <textarea
                     className="form-input"
                     name="alamat"
+                    placeholder="Masukkan alamat lengkap pelanggan"
                     value={formData.alamat}
                     onChange={handleInputChange}
                     rows="3"

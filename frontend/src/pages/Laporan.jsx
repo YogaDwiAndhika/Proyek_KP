@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Search, Calendar, Package, Wrench, Users, FileText } from 'lucide-react';
+import { Search, Calendar, Users, FileText } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
+import TransaksiDetailModal from '../components/TransaksiDetailModal';
 
 export default function Laporan() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'riwayat_kendaraan';
+  const setActiveTab = (tab) => setSearchParams({ tab });
+
   const [mobils, setMobils] = useState([]);
   const [transaksis, setTransaksis] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  const [activeTab, setActiveTab] = useState('riwayat_kendaraan');
+  // State for Detail Modal
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState(null);
   
   // State for Riwayat Kendaraan
   const [selectedNoRangka, setSelectedNoRangka] = useState('');
@@ -49,37 +57,7 @@ export default function Laporan() {
   }).sort((a, b) => new Date(b.tanggal_transaksi) - new Date(a.tanggal_transaksi));
   const totalPendapatan = pendapatanTransaksi.reduce((sum, t) => sum + parseFloat(t.total_harga), 0);
 
-  // 3. Laporan Sparepart
-  const getSparepartStats = () => {
-    const stats = {};
-    transaksis.forEach(t => {
-      t.detail_spareparts?.forEach(ds => {
-        if (!stats[ds.id_sparepart]) {
-          stats[ds.id_sparepart] = { nama: ds.sparepart?.nama_sparepart, merk: ds.sparepart?.merk, qty: 0, revenue: 0 };
-        }
-        stats[ds.id_sparepart].qty += ds.quantity;
-        stats[ds.id_sparepart].revenue += parseFloat(ds.record_harga_satuan || ds.sparepart?.harga_satuan || 0) * ds.quantity;
-      });
-    });
-    return Object.values(stats).sort((a, b) => b.qty - a.qty);
-  };
-
-  // 4. Laporan Layanan
-  const getLayananStats = () => {
-    const stats = {};
-    transaksis.forEach(t => {
-      t.detail_layanans?.forEach(dl => {
-        if (!stats[dl.id_layanan]) {
-          stats[dl.id_layanan] = { nama: dl.layanan?.jenis_layanan, count: 0, revenue: 0 };
-        }
-        stats[dl.id_layanan].count += 1;
-        stats[dl.id_layanan].revenue += parseFloat(dl.record_biaya || dl.layanan?.biaya || 0);
-      });
-    });
-    return Object.values(stats).sort((a, b) => b.count - a.count);
-  };
-
-  // 5. Laporan Pelanggan
+  // 3. Laporan Pelanggan
   const getPelangganStats = () => {
     const stats = {};
     transaksis.forEach(t => {
@@ -114,18 +92,6 @@ export default function Laporan() {
             style={{ flex: 1, padding: '15px', border: 'none', background: activeTab === 'pendapatan' ? '#fff' : 'transparent', borderBottom: activeTab === 'pendapatan' ? '2px solid #3b82f6' : 'none', cursor: 'pointer', fontWeight: activeTab === 'pendapatan' ? 'bold' : 'normal', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: activeTab === 'pendapatan' ? '#3b82f6' : '#64748b' }}
           >
             <Calendar size={18} /> Laporan Pendapatan
-          </button>
-          <button 
-            onClick={() => setActiveTab('sparepart')}
-            style={{ flex: 1, padding: '15px', border: 'none', background: activeTab === 'sparepart' ? '#fff' : 'transparent', borderBottom: activeTab === 'sparepart' ? '2px solid #3b82f6' : 'none', cursor: 'pointer', fontWeight: activeTab === 'sparepart' ? 'bold' : 'normal', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: activeTab === 'sparepart' ? '#3b82f6' : '#64748b' }}
-          >
-            <Package size={18} /> Statistik Sparepart
-          </button>
-          <button 
-            onClick={() => setActiveTab('layanan')}
-            style={{ flex: 1, padding: '15px', border: 'none', background: activeTab === 'layanan' ? '#fff' : 'transparent', borderBottom: activeTab === 'layanan' ? '2px solid #3b82f6' : 'none', cursor: 'pointer', fontWeight: activeTab === 'layanan' ? 'bold' : 'normal', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: activeTab === 'layanan' ? '#3b82f6' : '#64748b' }}
-          >
-            <Wrench size={18} /> Statistik Layanan
           </button>
           <button 
             onClick={() => setActiveTab('pelanggan')}
@@ -258,12 +224,13 @@ export default function Laporan() {
                   <th>Tanggal</th>
                   <th>No Polisi Mobil</th>
                   <th>Pelanggan</th>
+                  <th style={{ textAlign: 'center', width: '80px' }}>Aksi</th>
                   <th style={{ textAlign: 'right' }}>Total Harga</th>
                 </tr>
               </thead>
               <tbody>
                 {pendapatanTransaksi.length === 0 ? (
-                  <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>Tidak ada transaksi pada periode ini.</td></tr>
+                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Tidak ada transaksi pada periode ini.</td></tr>
                 ) : (
                   pendapatanTransaksi.map(t => (
                     <tr key={t.id_transaksi}>
@@ -271,73 +238,12 @@ export default function Laporan() {
                       <td>{t.tanggal_transaksi}</td>
                       <td>{t.mobil?.no_polisi || '-'}</td>
                       <td>{t.mobil?.pelanggan?.nama_pelanggan || '-'}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button className="btn-icon" style={{ color: '#3b82f6' }} onClick={() => { setSelectedDetail(t); setShowDetailModal(true); }} title="Lihat Detail">
+                          <FileText size={18} />
+                        </button>
+                      </td>
                       <td style={{ textAlign: 'right', fontWeight: 'bold' }}>Rp {new Intl.NumberFormat('id-ID').format(t.total_harga)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {!loading && activeTab === 'sparepart' && (
-        <div className="card">
-          <h2 style={{ fontSize: '18px', marginBottom: '15px' }}>Laporan Sparepart Paling Banyak Digunakan</h2>
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Peringkat</th>
-                  <th>Nama Sparepart</th>
-                  <th>Merk</th>
-                  <th style={{ textAlign: 'center' }}>Total Terjual (Qty)</th>
-                  <th style={{ textAlign: 'right' }}>Estimasi Pendapatan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getSparepartStats().length === 0 ? (
-                  <tr><td colSpan="5" style={{ textAlign: 'center' }}>Belum ada data.</td></tr>
-                ) : (
-                  getSparepartStats().map((sp, idx) => (
-                    <tr key={idx}>
-                      <td style={{ textAlign: 'center' }}>#{idx + 1}</td>
-                      <td>{sp.nama || 'Sparepart Dihapus'}</td>
-                      <td>{sp.merk || '-'}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{sp.qty}</td>
-                      <td style={{ textAlign: 'right' }}>Rp {new Intl.NumberFormat('id-ID').format(sp.revenue)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {!loading && activeTab === 'layanan' && (
-        <div className="card">
-          <h2 style={{ fontSize: '18px', marginBottom: '15px' }}>Laporan Layanan Paling Sering Dipesan</h2>
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Peringkat</th>
-                  <th>Jenis Layanan</th>
-                  <th style={{ textAlign: 'center' }}>Total Dipesan</th>
-                  <th style={{ textAlign: 'right' }}>Estimasi Pendapatan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getLayananStats().length === 0 ? (
-                  <tr><td colSpan="4" style={{ textAlign: 'center' }}>Belum ada data.</td></tr>
-                ) : (
-                  getLayananStats().map((lay, idx) => (
-                    <tr key={idx}>
-                      <td style={{ textAlign: 'center' }}>#{idx + 1}</td>
-                      <td>{lay.nama || 'Layanan Dihapus'}</td>
-                      <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{lay.count} kali</td>
-                      <td style={{ textAlign: 'right' }}>Rp {new Intl.NumberFormat('id-ID').format(lay.revenue)}</td>
                     </tr>
                   ))
                 )}
@@ -379,6 +285,13 @@ export default function Laporan() {
             </table>
           </div>
         </div>
+      )}
+
+      {showDetailModal && (
+        <TransaksiDetailModal 
+          selectedDetail={selectedDetail} 
+          closeModal={() => setShowDetailModal(false)} 
+        />
       )}
     </div>
   );

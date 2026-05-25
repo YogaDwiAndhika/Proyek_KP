@@ -120,6 +120,7 @@ export default function TransaksiFormModal({
                 type="number"
                 className="form-input"
                 name="km_kendaraan"
+                placeholder="Masukkan KM kendaraan (cth: 50000)"
                 value={formData.km_kendaraan}
                 onChange={handleInputChange}
                 min="0"
@@ -214,6 +215,7 @@ export default function TransaksiFormModal({
                 type="number"
                 className="form-input"
                 name="total_harga"
+                placeholder="Masukkan total harga atau klik hitung otomatis"
                 value={formData.total_harga}
                 onChange={handleInputChange}
                 required

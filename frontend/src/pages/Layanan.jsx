@@ -145,6 +145,7 @@ export default function Layanan() {
                     type="text"
                     className="form-input"
                     name="jenis_layanan"
+                    placeholder="Masukkan jenis layanan (cth: Ganti Oli)"
                     value={formData.jenis_layanan}
                     onChange={handleInputChange}
                     required
@@ -156,6 +157,7 @@ export default function Layanan() {
                     type="number"
                     className="form-input"
                     name="biaya"
+                    placeholder="Masukkan nominal biaya (cth: 50000)"
                     value={formData.biaya}
                     onChange={handleInputChange}
                     min="0"
@@ -167,6 +169,7 @@ export default function Layanan() {
                   <textarea
                     className="form-input"
                     name="keterangan"
+                    placeholder="Tambahkan keterangan jika ada"
                     value={formData.keterangan || ''}
                     onChange={handleInputChange}
                     rows="3"

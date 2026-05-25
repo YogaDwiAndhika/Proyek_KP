@@ -145,6 +145,7 @@ export default function Sparepart() {
                     type="text"
                     className="form-input"
                     name="nama_sparepart"
+                    placeholder="Masukkan nama sparepart"
                     value={formData.nama_sparepart}
                     onChange={handleInputChange}
                     required
@@ -156,6 +157,7 @@ export default function Sparepart() {
                     type="text"
                     className="form-input"
                     name="merk"
+                    placeholder="Masukkan merk sparepart"
                     value={formData.merk}
                     onChange={handleInputChange}
                     required
@@ -167,6 +169,7 @@ export default function Sparepart() {
                     type="number"
                     className="form-input"
                     name="harga_satuan"
+                    placeholder="Masukkan harga satuan (cth: 150000)"
                     value={formData.harga_satuan}
                     onChange={handleInputChange}
                     min="0"

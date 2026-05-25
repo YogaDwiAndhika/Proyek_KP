@@ -166,6 +166,7 @@ export default function Mobil() {
                     type="text"
                     className="form-input"
                     name="no_rangka"
+                    placeholder="Masukkan nomor rangka mobil"
                     value={formData.no_rangka}
                     onChange={handleInputChange}
                     required
@@ -194,6 +195,7 @@ export default function Mobil() {
                     type="text"
                     className="form-input"
                     name="no_polisi"
+                    placeholder="Masukkan nomor polisi (cth: BG1234AB)"
                     value={formData.no_polisi}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\s+/g, '').toUpperCase();
@@ -211,6 +213,7 @@ export default function Mobil() {
                     type="text"
                     className="form-input"
                     name="merk_mobil"
+                    placeholder="Masukkan merk mobil (cth: Toyota Avanza)"
                     value={formData.merk_mobil}
                     onChange={handleInputChange}
                     required
