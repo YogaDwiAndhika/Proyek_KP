@@ -1,25 +1,32 @@
-import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, Car, Receipt, FileText, Wrench, Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, NavLink, Navigate, Outlet } from 'react-router-dom';
+import { LayoutDashboard, Users, Car, Receipt, FileText, Wrench, Settings, ChevronDown, ChevronUp, UserCog, LogOut } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Pelanggan from './pages/Pelanggan';
 import Mobil from './pages/Mobil';
 import Transaksi from './pages/Transaksi';
 import Sparepart from './pages/Sparepart';
 import Layanan from './pages/Layanan';
-
 import Laporan from './pages/Laporan';
+import Login from './pages/Login';
+import ManajemenPengguna from './pages/ManajemenPengguna';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider, AuthContext } from './contexts/AuthContext';
 
 function SidebarContent() {
   const [isLaporanOpen, setIsLaporanOpen] = useState(false);
+  const { user, logout } = useContext(AuthContext);
 
   return (
     <>
-      <div className="sidebar-header" style={{ justifyContent: 'center' }}>
+      <div className="sidebar-header" style={{ justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
         <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <span style={{ color: 'black' }}>Bengkel</span>
           <span style={{ color: 'red' }}>Auto</span>
           <span style={{ color: 'black' }}>60</span>
+        </div>
+        <div style={{ fontSize: '12px', color: '#666' }}>
+          Login sebagai: <strong>{user?.username} ({user?.role})</strong>
         </div>
       </div>
       
@@ -89,23 +96,44 @@ function SidebarContent() {
             </div>
           )}
         </div>
+
+        {user?.role === 'owner' && (
+          <NavLink to="/users" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} style={{ marginTop: '20px' }}>
+            <UserCog size={20} />
+            <span>Manajemen Pengguna</span>
+          </NavLink>
+        )}
+
+        <div className="nav-item" onClick={logout} style={{ marginTop: 'auto', cursor: 'pointer', color: '#ef4444' }}>
+          <LogOut size={20} />
+          <span>Logout</span>
+        </div>
       </nav>
     </>
   );
 }
 
+function MainLayout() {
+  return (
+    <div className="app-container">
+      <aside className="sidebar">
+        <SidebarContent />
+      </aside>
+      <main className="main-content">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
-    <Router>
-      <div className="app-container">
-        {/* Sidebar */}
-        <aside className="sidebar">
-          <SidebarContent />
-        </aside>
-
-        {/* Main Content */}
-        <main className="main-content">
-          <Routes>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/transaksi" element={<Transaksi />} />
             <Route path="/pelanggan" element={<Pelanggan />} />
@@ -113,10 +141,11 @@ function App() {
             <Route path="/sparepart" element={<Sparepart />} />
             <Route path="/layanan" element={<Layanan />} />
             <Route path="/laporan" element={<Laporan />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+            <Route path="/users" element={<ProtectedRoute requiredRole="owner"><ManajemenPengguna /></ProtectedRoute>} />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

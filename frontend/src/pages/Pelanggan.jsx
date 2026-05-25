@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { AuthContext } from '../contexts/AuthContext';
 import api from '../utils/api';
 import useTable from '../hooks/useTable';
 import { TableFilter, TablePagination } from '../components/TablePagination';
@@ -10,6 +11,7 @@ export default function Pelanggan() {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ id_pelanggan: '', nama_pelanggan: '', nomor_telp: '', alamat: '' });
   const [isEditing, setIsEditing] = useState(false);
+  const { user } = useContext(AuthContext);
 
   const table = useTable(data, 10);
 
@@ -77,9 +79,11 @@ export default function Pelanggan() {
     <div>
       <div className="page-header">
         <h1 className="page-title">Data Pelanggan</h1>
-        <button className="btn btn-primary" onClick={openNewModal}>
-          <Plus size={18} /> Tambah Pelanggan
-        </button>
+        {user?.role !== 'viewer' && (
+          <button className="btn btn-primary" onClick={openNewModal}>
+            <Plus size={18} /> Tambah Pelanggan
+          </button>
+        )}
       </div>
 
       <div className="card">
@@ -96,7 +100,7 @@ export default function Pelanggan() {
                 <th onClick={() => table.handleSort('nama_pelanggan')} style={{ cursor: 'pointer' }}>Nama Pelanggan {table.sortConfig.key === 'nama_pelanggan' ? (table.sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
                 <th onClick={() => table.handleSort('nomor_telp')} style={{ cursor: 'pointer' }}>Nomor Telepon {table.sortConfig.key === 'nomor_telp' ? (table.sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
                 <th onClick={() => table.handleSort('alamat')} style={{ cursor: 'pointer' }}>Alamat {table.sortConfig.key === 'alamat' ? (table.sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
-                <th style={{ width: '100px' }}>Aksi</th>
+                {user?.role !== 'viewer' && <th style={{ width: '100px' }}>Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -111,16 +115,18 @@ export default function Pelanggan() {
                     <td>{item.nama_pelanggan}</td>
                     <td>{item.nomor_telp}</td>
                     <td>{item.alamat}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn-icon" onClick={() => handleEdit(item)}>
-                          <Edit2 size={18} />
-                        </button>
-                        <button className="btn-icon delete" onClick={() => handleDelete(item.id_pelanggan)}>
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
+                    {user?.role !== 'viewer' && (
+                      <td>
+                        <div className="action-buttons">
+                          <button className="btn-icon" onClick={() => handleEdit(item)}>
+                            <Edit2 size={18} />
+                          </button>
+                          <button className="btn-icon delete" onClick={() => handleDelete(item.id_pelanggan)}>
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

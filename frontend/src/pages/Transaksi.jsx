@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Plus, Edit2, Trash2, FileText } from 'lucide-react';
+import { AuthContext } from '../contexts/AuthContext';
 import api from '../utils/api';
 import useTable from '../hooks/useTable';
 import { TableFilter, TablePagination } from '../components/TablePagination';
@@ -28,6 +29,7 @@ export default function Transaksi() {
   });
   
   const [isEditing, setIsEditing] = useState(false);
+  const { user } = useContext(AuthContext);
 
   const table = useTable(data, 10);
 
@@ -136,9 +138,11 @@ export default function Transaksi() {
     <div>
       <div className="page-header">
         <h1 className="page-title">Data Transaksi</h1>
-        <button className="btn btn-primary" onClick={openNewModal}>
-          <Plus size={18} /> Tambah Transaksi
-        </button>
+        {user?.role !== 'viewer' && (
+          <button className="btn btn-primary" onClick={openNewModal}>
+            <Plus size={18} /> Tambah Transaksi
+          </button>
+        )}
       </div>
 
       <div className="card">
@@ -179,12 +183,16 @@ export default function Transaksi() {
                         <button className="btn-icon" style={{ color: '#3b82f6' }} onClick={() => handleViewDetail(item)} title="Lihat Detail">
                           <FileText size={18} />
                         </button>
-                        <button className="btn-icon" onClick={() => handleEdit(item)} title="Edit">
-                          <Edit2 size={18} />
-                        </button>
-                        <button className="btn-icon delete" onClick={() => handleDelete(item.id_transaksi)} title="Hapus">
-                          <Trash2 size={18} />
-                        </button>
+                        {user?.role !== 'viewer' && (
+                          <>
+                            <button className="btn-icon" onClick={() => handleEdit(item)} title="Edit">
+                              <Edit2 size={18} />
+                            </button>
+                            <button className="btn-icon delete" onClick={() => handleDelete(item.id_transaksi)} title="Hapus">
+                              <Trash2 size={18} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

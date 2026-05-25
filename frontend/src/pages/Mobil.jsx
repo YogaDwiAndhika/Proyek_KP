@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { AuthContext } from '../contexts/AuthContext';
 import api from '../utils/api';
 import useTable from '../hooks/useTable';
 import { TableFilter, TablePagination } from '../components/TablePagination';
@@ -11,6 +12,7 @@ export default function Mobil() {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ original_no_rangka: '', no_rangka: '', id_pelanggan: '', no_polisi: '', merk_mobil: '' });
   const [isEditing, setIsEditing] = useState(false);
+  const { user } = useContext(AuthContext);
 
   const table = useTable(data, 10);
 
@@ -99,9 +101,11 @@ export default function Mobil() {
     <div>
       <div className="page-header">
         <h1 className="page-title">Data Mobil</h1>
-        <button className="btn btn-primary" onClick={openNewModal}>
-          <Plus size={18} /> Tambah Mobil
-        </button>
+        {user?.role !== 'viewer' && (
+          <button className="btn btn-primary" onClick={openNewModal}>
+            <Plus size={18} /> Tambah Mobil
+          </button>
+        )}
       </div>
 
       <div className="card">
@@ -118,7 +122,7 @@ export default function Mobil() {
                 <th onClick={() => table.handleSort('id_pelanggan')} style={{ cursor: 'pointer' }}>Pelanggan {table.sortConfig.key === 'id_pelanggan' ? (table.sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
                 <th onClick={() => table.handleSort('no_polisi')} style={{ cursor: 'pointer' }}>No Polisi {table.sortConfig.key === 'no_polisi' ? (table.sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
                 <th onClick={() => table.handleSort('merk_mobil')} style={{ cursor: 'pointer' }}>Merk Mobil {table.sortConfig.key === 'merk_mobil' ? (table.sortConfig.direction === 'asc' ? '↑' : '↓') : ''}</th>
-                <th style={{ width: '100px' }}>Aksi</th>
+                {user?.role !== 'viewer' && <th style={{ width: '100px' }}>Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -133,16 +137,18 @@ export default function Mobil() {
                     <td>{item.pelanggan ? item.pelanggan.nama_pelanggan : getPelangganName(item.id_pelanggan)}</td>
                     <td>{item.no_polisi}</td>
                     <td>{item.merk_mobil}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn-icon" onClick={() => handleEdit(item)}>
-                          <Edit2 size={18} />
-                        </button>
-                        <button className="btn-icon delete" onClick={() => handleDelete(item.no_rangka)}>
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
+                    {user?.role !== 'viewer' && (
+                      <td>
+                        <div className="action-buttons">
+                          <button className="btn-icon" onClick={() => handleEdit(item)}>
+                            <Edit2 size={18} />
+                          </button>
+                          <button className="btn-icon delete" onClick={() => handleDelete(item.no_rangka)}>
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
