@@ -96,8 +96,8 @@ export default function Transaksi() {
       tanggal_transaksi: item.tanggal_transaksi,
       km_kendaraan: item.km_kendaraan,
       total_harga: item.total_harga,
-      spareparts: item.detail_spareparts ? item.detail_spareparts.map(sp => ({ id_sparepart: sp.id_sparepart, quantity: sp.quantity, record_harga_satuan: sp.record_harga_satuan })) : [],
-      layanans: item.detail_layanans ? item.detail_layanans.map(lay => ({ id_layanan: lay.id_layanan, record_biaya: lay.record_biaya })) : []
+      spareparts: item.detail_spareparts ? item.detail_spareparts.map(sp => ({ id_sparepart: sp.id_sparepart, quantity: sp.quantity, harga_jual: sp.harga_jual })) : [],
+      layanans: item.detail_layanans ? item.detail_layanans.map(lay => ({ id_layanan: lay.id_layanan, biaya_dikenakan: lay.biaya_dikenakan })) : []
     });
     setIsEditing(true);
     setShowModal(true);

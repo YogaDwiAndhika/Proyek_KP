@@ -65,7 +65,7 @@ export default function TransaksiDetailModal({ selectedDetail, closeModal }) {
                 <td style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>{dl.layanan?.jenis_layanan}</td>
                 <td style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>{dl.layanan?.keterangan || '-'}</td>
                 <td style={{ textAlign: 'right', padding: '8px 0', borderBottom: '1px solid #eee' }}>
-                  {new Intl.NumberFormat('id-ID').format(dl.record_biaya || dl.layanan?.biaya || 0)}
+                  {new Intl.NumberFormat('id-ID').format(dl.biaya_dikenakan || dl.layanan?.biaya || 0)}
                 </td>
               </tr>
             ))}
@@ -74,7 +74,7 @@ export default function TransaksiDetailModal({ selectedDetail, closeModal }) {
                 <td style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>{ds.sparepart?.nama_sparepart}</td>
                 <td style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>Merk: {ds.sparepart?.merk} (Qty: {ds.quantity})</td>
                 <td style={{ textAlign: 'right', padding: '8px 0', borderBottom: '1px solid #eee' }}>
-                  {new Intl.NumberFormat('id-ID').format((ds.record_harga_satuan || ds.sparepart?.harga_satuan || 0) * ds.quantity)}
+                  {new Intl.NumberFormat('id-ID').format((ds.harga_jual || ds.sparepart?.harga_satuan || 0) * ds.quantity)}
                 </td>
               </tr>
             ))}

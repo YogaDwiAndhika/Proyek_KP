@@ -14,7 +14,7 @@ class DetailTransaksiLayanan extends Model
     protected $fillable = [
         'id_transaksi',
         'id_layanan',
-        'record_biaya'
+        'biaya_dikenakan'
     ];
 
     public function transaksi()

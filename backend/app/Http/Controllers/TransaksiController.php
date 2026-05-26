@@ -38,7 +38,7 @@ class TransaksiController extends Controller
                         'id_transaksi' => $transaksi->id_transaksi,
                         'id_sparepart' => $sp['id_sparepart'],
                         'quantity' => $sp['quantity'],
-                        'record_harga_satuan' => $sparepart ? $sparepart->harga_satuan : 0,
+                        'harga_jual' => $sparepart ? $sparepart->harga_satuan : 0,
                     ]);
                 }
             }
@@ -49,7 +49,7 @@ class TransaksiController extends Controller
                     DetailTransaksiLayanan::create([
                         'id_transaksi' => $transaksi->id_transaksi,
                         'id_layanan' => $lay['id_layanan'],
-                        'record_biaya' => $layanan ? $layanan->biaya : 0,
+                        'biaya_dikenakan' => $layanan ? $layanan->biaya : 0,
                     ]);
                 }
             }
@@ -89,12 +89,12 @@ class TransaksiController extends Controller
                 DetailTransaksiSparepart::where('id_transaksi', $id)->delete();
                 foreach ($request->spareparts as $sp) {
                     $sparepart = \App\Models\Sparepart::find($sp['id_sparepart']);
-                    $record_harga = isset($sp['record_harga_satuan']) ? $sp['record_harga_satuan'] : ($sparepart ? $sparepart->harga_satuan : 0);
+                    $record_harga = isset($sp['harga_jual']) ? $sp['harga_jual'] : ($sparepart ? $sparepart->harga_satuan : 0);
                     DetailTransaksiSparepart::create([
                         'id_transaksi' => $transaksi->id_transaksi,
                         'id_sparepart' => $sp['id_sparepart'],
                         'quantity' => $sp['quantity'],
-                        'record_harga_satuan' => $record_harga,
+                        'harga_jual' => $record_harga,
                     ]);
                 }
             }
@@ -103,11 +103,11 @@ class TransaksiController extends Controller
                 DetailTransaksiLayanan::where('id_transaksi', $id)->delete();
                 foreach ($request->layanans as $lay) {
                     $layanan = \App\Models\Layanan::find($lay['id_layanan']);
-                    $record_biaya = isset($lay['record_biaya']) ? $lay['record_biaya'] : ($layanan ? $layanan->biaya : 0);
+                    $record_biaya = isset($lay['biaya_dikenakan']) ? $lay['biaya_dikenakan'] : ($layanan ? $layanan->biaya : 0);
                     DetailTransaksiLayanan::create([
                         'id_transaksi' => $transaksi->id_transaksi,
                         'id_layanan' => $lay['id_layanan'],
-                        'record_biaya' => $record_biaya,
+                        'biaya_dikenakan' => $record_biaya,
                     ]);
                 }
             }

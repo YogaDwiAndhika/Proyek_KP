@@ -15,7 +15,7 @@ class DetailTransaksiSparepart extends Model
         'id_transaksi',
         'id_sparepart',
         'quantity',
-        'record_harga_satuan'
+        'harga_jual'
     ];
 
     public function transaksi()

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Calendar, Users, FileText } from 'lucide-react';
+import { Search, Calendar, Users, FileText, Settings, Wrench } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import TransaksiDetailModal from '../components/TransaksiDetailModal';
@@ -73,6 +73,51 @@ export default function Laporan() {
     return Object.values(stats).sort((a, b) => b.spend - a.spend);
   };
 
+  // 4. Statistik Sparepart
+  const getSparepartStats = () => {
+    const stats = {};
+    transaksis.forEach(t => {
+      if (t.detail_spareparts) {
+        t.detail_spareparts.forEach(ds => {
+          const spId = ds.id_sparepart;
+          if (!stats[spId]) {
+            stats[spId] = { 
+              nama: ds.sparepart?.nama_sparepart || `Unknown ID: ${spId}`, 
+              merk: ds.sparepart?.merk || '-',
+              qty: 0, 
+              total: 0 
+            };
+          }
+          stats[spId].qty += parseInt(ds.quantity || 0);
+          stats[spId].total += parseInt(ds.quantity || 0) * parseFloat(ds.harga_jual || ds.sparepart?.harga_satuan || 0);
+        });
+      }
+    });
+    return Object.values(stats).sort((a, b) => b.qty - a.qty);
+  };
+
+  // 5. Statistik Layanan
+  const getLayananStats = () => {
+    const stats = {};
+    transaksis.forEach(t => {
+      if (t.detail_layanans) {
+        t.detail_layanans.forEach(dl => {
+          const lId = dl.id_layanan;
+          if (!stats[lId]) {
+            stats[lId] = { 
+              nama: dl.layanan?.jenis_layanan || `Unknown ID: ${lId}`, 
+              count: 0, 
+              total: 0 
+            };
+          }
+          stats[lId].count += 1;
+          stats[lId].total += parseFloat(dl.biaya_dikenakan || dl.layanan?.biaya || 0);
+        });
+      }
+    });
+    return Object.values(stats).sort((a, b) => b.count - a.count);
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -98,6 +143,18 @@ export default function Laporan() {
             style={{ flex: 1, padding: '15px', border: 'none', background: activeTab === 'pelanggan' ? '#fff' : 'transparent', borderBottom: activeTab === 'pelanggan' ? '2px solid #3b82f6' : 'none', cursor: 'pointer', fontWeight: activeTab === 'pelanggan' ? 'bold' : 'normal', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: activeTab === 'pelanggan' ? '#3b82f6' : '#64748b' }}
           >
             <Users size={18} /> Pelanggan Teraktif
+          </button>
+          <button 
+            onClick={() => setActiveTab('sparepart')}
+            style={{ flex: 1, padding: '15px', border: 'none', background: activeTab === 'sparepart' ? '#fff' : 'transparent', borderBottom: activeTab === 'sparepart' ? '2px solid #3b82f6' : 'none', cursor: 'pointer', fontWeight: activeTab === 'sparepart' ? 'bold' : 'normal', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: activeTab === 'sparepart' ? '#3b82f6' : '#64748b' }}
+          >
+            <Settings size={18} /> Statistik Sparepart
+          </button>
+          <button 
+            onClick={() => setActiveTab('layanan')}
+            style={{ flex: 1, padding: '15px', border: 'none', background: activeTab === 'layanan' ? '#fff' : 'transparent', borderBottom: activeTab === 'layanan' ? '2px solid #3b82f6' : 'none', cursor: 'pointer', fontWeight: activeTab === 'layanan' ? 'bold' : 'normal', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: activeTab === 'layanan' ? '#3b82f6' : '#64748b' }}
+          >
+            <Wrench size={18} /> Statistik Layanan
           </button>
         </div>
       </div>
@@ -278,6 +335,72 @@ export default function Laporan() {
                       <td>{p.telp}</td>
                       <td style={{ textAlign: 'center' }}>{p.count} kali</td>
                       <td style={{ textAlign: 'right', fontWeight: 'bold', color: '#16a34a' }}>Rp {new Intl.NumberFormat('id-ID').format(p.spend)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {!loading && activeTab === 'sparepart' && (
+        <div className="card">
+          <h2 style={{ fontSize: '18px', marginBottom: '15px' }}>Statistik Penggunaan Sparepart</h2>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Peringkat</th>
+                  <th>Nama Sparepart</th>
+                  <th>Merk</th>
+                  <th style={{ textAlign: 'center' }}>Total Terjual</th>
+                  <th style={{ textAlign: 'right' }}>Total Pendapatan (Rp)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getSparepartStats().length === 0 ? (
+                  <tr><td colSpan="5" style={{ textAlign: 'center' }}>Belum ada data.</td></tr>
+                ) : (
+                  getSparepartStats().map((sp, idx) => (
+                    <tr key={idx}>
+                      <td style={{ textAlign: 'center' }}>#{idx + 1}</td>
+                      <td>{sp.nama}</td>
+                      <td>{sp.merk}</td>
+                      <td style={{ textAlign: 'center' }}>{sp.qty} unit</td>
+                      <td style={{ textAlign: 'right', fontWeight: 'bold' }}>Rp {new Intl.NumberFormat('id-ID').format(sp.total)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {!loading && activeTab === 'layanan' && (
+        <div className="card">
+          <h2 style={{ fontSize: '18px', marginBottom: '15px' }}>Statistik Penggunaan Layanan</h2>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Peringkat</th>
+                  <th>Jenis Layanan</th>
+                  <th style={{ textAlign: 'center' }}>Total Digunakan</th>
+                  <th style={{ textAlign: 'right' }}>Total Pendapatan (Rp)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getLayananStats().length === 0 ? (
+                  <tr><td colSpan="4" style={{ textAlign: 'center' }}>Belum ada data.</td></tr>
+                ) : (
+                  getLayananStats().map((l, idx) => (
+                    <tr key={idx}>
+                      <td style={{ textAlign: 'center' }}>#{idx + 1}</td>
+                      <td>{l.nama}</td>
+                      <td style={{ textAlign: 'center' }}>{l.count} kali</td>
+                      <td style={{ textAlign: 'right', fontWeight: 'bold' }}>Rp {new Intl.NumberFormat('id-ID').format(l.total)}</td>
                     </tr>
                   ))
                 )}

@@ -9,8 +9,14 @@ export default function ProtectedRoute({ children, requiredRole }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && user && user.role !== requiredRole) {
-    return <Navigate to="/" replace />; // Redirect to dashboard if not authorized
+  if (requiredRole && user) {
+    if (Array.isArray(requiredRole)) {
+      if (!requiredRole.includes(user.role)) {
+        return <Navigate to="/" replace />;
+      }
+    } else if (user.role !== requiredRole) {
+      return <Navigate to="/" replace />; // Redirect to dashboard if not authorized
+    }
   }
 
   return children;

@@ -35,26 +35,30 @@ function SidebarContent() {
           <LayoutDashboard size={20} />
           <span>Dashboard</span>
         </NavLink>
-        <NavLink to="/transaksi" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-          <Receipt size={20} />
-          <span>Transaksi</span>
-        </NavLink>
-        <NavLink to="/pelanggan" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-          <Users size={20} />
-          <span>Pelanggan</span>
-        </NavLink>
-        <NavLink to="/mobil" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-          <Car size={20} />
-          <span>Mobil</span>
-        </NavLink>
-        <NavLink to="/sparepart" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-          <Settings size={20} />
-          <span>Sparepart</span>
-        </NavLink>
-        <NavLink to="/layanan" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-          <Wrench size={20} />
-          <span>Layanan</span>
-        </NavLink>
+        {user?.role !== 'owner' && (
+          <>
+            <NavLink to="/transaksi" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+              <Receipt size={20} />
+              <span>Transaksi</span>
+            </NavLink>
+            <NavLink to="/pelanggan" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+              <Users size={20} />
+              <span>Pelanggan</span>
+            </NavLink>
+            <NavLink to="/mobil" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+              <Car size={20} />
+              <span>Mobil</span>
+            </NavLink>
+            <NavLink to="/sparepart" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+              <Settings size={20} />
+              <span>Sparepart</span>
+            </NavLink>
+            <NavLink to="/layanan" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+              <Wrench size={20} />
+              <span>Layanan</span>
+            </NavLink>
+          </>
+        )}
         
         {/* Laporan Dropdown */}
         <div className="nav-item-container">
@@ -92,6 +96,20 @@ function SidebarContent() {
                 style={{ padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}
               >
                 Pelanggan Teraktif
+              </NavLink>
+              <NavLink 
+                to="/laporan?tab=sparepart" 
+                className={({ isActive }) => isActive && window.location.search.includes('tab=sparepart') ? "nav-item active" : "nav-item"}
+                style={{ padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}
+              >
+                Statistik Sparepart
+              </NavLink>
+              <NavLink 
+                to="/laporan?tab=layanan" 
+                className={({ isActive }) => isActive && window.location.search.includes('tab=layanan') ? "nav-item active" : "nav-item"}
+                style={{ padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}
+              >
+                Statistik Layanan
               </NavLink>
             </div>
           )}
@@ -135,11 +153,11 @@ function App() {
           
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/transaksi" element={<Transaksi />} />
-            <Route path="/pelanggan" element={<Pelanggan />} />
-            <Route path="/mobil" element={<Mobil />} />
-            <Route path="/sparepart" element={<Sparepart />} />
-            <Route path="/layanan" element={<Layanan />} />
+            <Route path="/transaksi" element={<ProtectedRoute requiredRole={['viewer', 'kasir']}><Transaksi /></ProtectedRoute>} />
+            <Route path="/pelanggan" element={<ProtectedRoute requiredRole={['viewer', 'kasir']}><Pelanggan /></ProtectedRoute>} />
+            <Route path="/mobil" element={<ProtectedRoute requiredRole={['viewer', 'kasir']}><Mobil /></ProtectedRoute>} />
+            <Route path="/sparepart" element={<ProtectedRoute requiredRole={['viewer', 'kasir']}><Sparepart /></ProtectedRoute>} />
+            <Route path="/layanan" element={<ProtectedRoute requiredRole={['viewer', 'kasir']}><Layanan /></ProtectedRoute>} />
             <Route path="/laporan" element={<Laporan />} />
             <Route path="/users" element={<ProtectedRoute requiredRole="owner"><ManajemenPengguna /></ProtectedRoute>} />
           </Route>
