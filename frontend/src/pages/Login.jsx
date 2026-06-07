@@ -28,7 +28,7 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '0.25rem' }}>Login</h2>
           <h3 style={{ color: '#1f2937', margin: 0 }}>
-            Bengkel <span style={{ color: 'red' }}>Auto</span> 60
+            ARCA<span style={{ color: 'red' }}>DIA</span> 60
           </h3>
         </div>
         {error && <div style={{ backgroundColor: '#fee2e2', color: '#ef4444', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '14px' }}>{error}</div>}

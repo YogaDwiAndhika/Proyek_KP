@@ -31,7 +31,7 @@ export default function Transaksi() {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useContext(AuthContext);
 
-  const table = useTable(data, 10);
+  const table = useTable(data, 10, { key: 'tanggal_transaksi', direction: 'desc' });
 
 
 
@@ -150,6 +150,9 @@ export default function Transaksi() {
           limit={table.limit} setLimit={table.setLimit}
           searchTerm={table.searchTerm} setSearchTerm={table.setSearchTerm}
           setCurrentPage={table.setCurrentPage}
+          dateSortConfig={table.sortConfig}
+          setDateSortConfig={table.setSortConfig}
+          dateSortKey="tanggal_transaksi"
         />
         <div className="table-container">
           <table>

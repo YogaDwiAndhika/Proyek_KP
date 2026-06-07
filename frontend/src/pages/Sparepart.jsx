@@ -13,7 +13,7 @@ export default function Sparepart() {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useContext(AuthContext);
 
-  const table = useTable(data, 10);
+  const table = useTable(data, 10, { key: 'id_sparepart', direction: 'desc' });
 
 
 
@@ -91,6 +91,9 @@ export default function Sparepart() {
           limit={table.limit} setLimit={table.setLimit}
           searchTerm={table.searchTerm} setSearchTerm={table.setSearchTerm}
           setCurrentPage={table.setCurrentPage}
+          dateSortConfig={table.sortConfig}
+          setDateSortConfig={table.setSortConfig}
+          dateSortKey="id_sparepart"
         />
         <div className="table-container">
           <table>

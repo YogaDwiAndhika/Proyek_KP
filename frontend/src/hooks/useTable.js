@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 
-export default function useTable(data, defaultLimit = 10) {
+export default function useTable(data, defaultLimit = 10, defaultSort = { key: null, direction: 'asc' }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [limit, setLimit] = useState(defaultLimit);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState(defaultSort);
 
   const handleSort = (key) => {
     let direction = 'asc';
@@ -56,7 +56,7 @@ export default function useTable(data, defaultLimit = 10) {
     searchTerm, setSearchTerm,
     limit, setLimit,
     currentPage, setCurrentPage,
-    sortConfig, handleSort,
+    sortConfig, setSortConfig, handleSort,
     processedData, paginatedData, totalPages
   };
 }

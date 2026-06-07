@@ -20,10 +20,10 @@ function SidebarContent() {
   return (
     <>
       <div className="sidebar-header" style={{ justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
-        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ color: 'black' }}>Bengkel</span>
-          <span style={{ color: 'red' }}>Auto</span>
-          <span style={{ color: 'black' }}>60</span>
+        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ color: 'black' }}>ARCA</span>
+          <span style={{ color: 'red' }}>DIA</span>
+          <span style={{ color: 'black', marginLeft: '5px' }}>60</span>
         </div>
         <div style={{ fontSize: '12px', color: '#666' }}>
           Login sebagai: <strong>{user?.username} ({user?.role})</strong>

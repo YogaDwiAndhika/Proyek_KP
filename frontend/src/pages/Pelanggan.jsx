@@ -13,7 +13,7 @@ export default function Pelanggan() {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useContext(AuthContext);
 
-  const table = useTable(data, 10);
+  const table = useTable(data, 10, { key: 'id_pelanggan', direction: 'desc' });
 
 
 
@@ -91,6 +91,9 @@ export default function Pelanggan() {
           limit={table.limit} setLimit={table.setLimit}
           searchTerm={table.searchTerm} setSearchTerm={table.setSearchTerm}
           setCurrentPage={table.setCurrentPage}
+          dateSortConfig={table.sortConfig}
+          setDateSortConfig={table.setSortConfig}
+          dateSortKey="id_pelanggan"
         />
         <div className="table-container">
           <table>

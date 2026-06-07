@@ -14,7 +14,7 @@ export default function Mobil() {
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useContext(AuthContext);
 
-  const table = useTable(data, 10);
+  const table = useTable(data, 10, { key: 'no_rangka', direction: 'desc' });
 
 
 
@@ -113,6 +113,9 @@ export default function Mobil() {
           limit={table.limit} setLimit={table.setLimit}
           searchTerm={table.searchTerm} setSearchTerm={table.setSearchTerm}
           setCurrentPage={table.setCurrentPage}
+          dateSortConfig={table.sortConfig}
+          setDateSortConfig={table.setSortConfig}
+          dateSortKey="no_rangka"
         />
         <div className="table-container">
           <table>
